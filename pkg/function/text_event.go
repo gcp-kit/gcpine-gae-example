@@ -2,7 +2,6 @@ package function
 
 import (
 	"context"
-	"log"
 
 	"github.com/gcp-kit/line-bot-gcp-go/gcpine"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -34,7 +33,6 @@ func TextEvent(ctx context.Context, pine *gcpine.GCPine, event *linebot.Event) (
 
 		prof, err := pine.GetProfile(event.Source.UserID).WithContext(ctx).Do()
 		if err != nil {
-			log.Println("Error:", err.Error())
 			return nil, xerrors.Errorf("error in GetProfile method: %w", err)
 		}
 

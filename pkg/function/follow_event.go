@@ -21,7 +21,6 @@ func FollowEvent(ctx context.Context, pine *gcpine.GCPine, event *linebot.Event)
 
 	prof, err := pine.GetProfile(uid).WithContext(ctx).Do()
 	if err != nil {
-		log.Println("Error:", err.Error())
 		return nil, xerrors.Errorf("error in GetProfile method: %w", err)
 	}
 
