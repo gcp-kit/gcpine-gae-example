@@ -66,55 +66,55 @@ func main() {
 			props.ReceiveWebHook(c.Response().Writer, c.Request())
 			return nil
 		})
-	}
 
-	tq := g.Group("tq/")
-	{
-		tq.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-			return func(c echo.Context) error {
-				t, ok := c.Request().Header["X-Appengine-Taskname"]
-				if !ok || len(t[0]) == 0 {
-					log.Println("Invalid Task: No X-Appengine-Taskname request header found")
-					return c.String(http.StatusBadRequest, "Bad Request - Invalid Task\n")
+		tq := g.Group("tq/")
+		{
+			tq.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+				return func(c echo.Context) error {
+					t, ok := c.Request().Header["X-Appengine-Taskname"]
+					if !ok || len(t[0]) == 0 {
+						log.Println("Invalid Task: No X-Appengine-Taskname request header found")
+						return c.String(http.StatusBadRequest, "Bad Request - Invalid Task\n")
+					}
+
+					var (
+						taskName  = t[0]
+						queueName string
+					)
+					q, ok := c.Request().Header["X-Appengine-Queuename"]
+					if ok {
+						queueName = q[0]
+					}
+
+					fmt.Printf("Completed task: task queue(%s), task name(%s)\n", queueName, taskName)
+					return next(c)
 				}
+			})
 
-				var (
-					taskName  = t[0]
-					queueName string
-				)
-				q, ok := c.Request().Header["X-Appengine-Queuename"]
-				if ok {
-					queueName = q[0]
-				}
-
-				fmt.Printf("Completed task: task queue(%s), task name(%s)\n", queueName, taskName)
-				return next(c)
+			props := &gcpine.AppEngineProps{
+				QueuePath:   filepath.Join(queuePath, childQueue),
+				RelativeURI: "/line/tq/child",
+				Service:     gcpen.ServiceName,
 			}
-		})
 
-		props := &gcpine.AppEngineProps{
-			QueuePath:   filepath.Join(queuePath, childQueue),
-			RelativeURI: "/line/tq/child",
-			Service:     gcpen.ServiceName,
+			props.SetTQClient(cloudtasksClient)
+			tq.POST("parent", func(c echo.Context) error {
+				body, err := ioutil.ReadAll(c.Request().Body)
+				if err != nil {
+					return err
+				}
+				return props.ParentEvent(ctx, body)
+			})
+
+			pine := newPine(lineClient)
+			tq.POST("child", func(c echo.Context) error {
+				body, err := ioutil.ReadAll(c.Request().Body)
+				if err != nil {
+					return err
+				}
+				return props.ChildEvent(ctx, pine, body)
+			})
 		}
-
-		props.SetTQClient(cloudtasksClient)
-		tq.POST("parent", func(c echo.Context) error {
-			body, err := ioutil.ReadAll(c.Request().Body)
-			if err != nil {
-				return err
-			}
-			return props.ParentEvent(ctx, body)
-		})
-
-		pine := newPine(lineClient)
-		tq.POST("child", func(c echo.Context) error {
-			body, err := ioutil.ReadAll(c.Request().Body)
-			if err != nil {
-				return err
-			}
-			return props.ChildEvent(ctx, pine, body)
-		})
 	}
 
 	port := os.Getenv("PORT")
