@@ -1,0 +1,5 @@
+runtime: go115
+
+service: bot
+
+main: appengine/bot

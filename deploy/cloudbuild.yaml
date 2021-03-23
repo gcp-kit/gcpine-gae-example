@@ -1,0 +1,8 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'app'
+      - 'deploy'
+      - '--project=$PROJECT_ID'
+      - 'deploy/appengine/bot/app.yaml'
+      - 'deploy/appengine/dispatch.yaml'
