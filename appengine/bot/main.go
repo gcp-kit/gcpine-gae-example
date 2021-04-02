@@ -139,7 +139,6 @@ func newPine(client *linebot.Client) *gcpine.GCPine {
 	return &gcpine.GCPine{
 		ErrMessages: []linebot.SendingMessage{systemError},
 		Function:    functionMap,
-		LiffFunc:    nil,
 		Client:      client,
 	}
 }
