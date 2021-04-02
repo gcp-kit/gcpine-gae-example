@@ -55,16 +55,15 @@ func main() {
 
 	g := e.Group("/line/")
 	{
-		props := &gcpine.AppEngineProps{
-			QueuePath:   filepath.Join(queuePath, parentQueue),
-			RelativeURI: "/line/tq/parent",
-			Service:     gcpen.ServiceName,
-		}
-		props.SetTQClient(cloudtasksClient)
+		props := gcpine.NewAppEngineProps(
+			cloudtasksClient,
+			filepath.Join(queuePath, parentQueue),
+			"/line/tq/parent",
+		)
 		props.SetSecret(lineSecret)
+
 		g.POST("webhook", func(c echo.Context) error {
-			props.ReceiveWebHook(c.Response().Writer, c.Request())
-			return nil
+			return props.ReceiveWebHook(c.Request(), c.Response().Writer)
 		})
 
 		tq := g.Group("tq/")
@@ -91,13 +90,13 @@ func main() {
 				}
 			})
 
-			props := &gcpine.AppEngineProps{
-				QueuePath:   filepath.Join(queuePath, childQueue),
-				RelativeURI: "/line/tq/child",
-				Service:     gcpen.ServiceName,
-			}
+			props := gcpine.NewAppEngineProps(
+				cloudtasksClient,
+				filepath.Join(queuePath, childQueue),
+				"/line/tq/child",
+			)
+			props.SetGCPine(newPine(lineClient))
 
-			props.SetTQClient(cloudtasksClient)
 			tq.POST("parent", func(c echo.Context) error {
 				body, err := ioutil.ReadAll(c.Request().Body)
 				if err != nil {
@@ -106,13 +105,12 @@ func main() {
 				return props.ParentEvent(ctx, body)
 			})
 
-			pine := newPine(lineClient)
 			tq.POST("child", func(c echo.Context) error {
 				body, err := ioutil.ReadAll(c.Request().Body)
 				if err != nil {
 					return err
 				}
-				return props.ChildEvent(ctx, pine, body)
+				return props.ChildEvent(ctx, body)
 			})
 		}
 	}
