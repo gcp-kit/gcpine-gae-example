@@ -128,7 +128,7 @@ func main() {
 }
 
 func newPine(client *linebot.Client) *gcpine.GCPine {
-	functionMap := map[gcpine.EventType]func(context.Context, *gcpine.GCPine, *linebot.Event) ([]linebot.SendingMessage, error){
+	functionMap := map[gcpine.EventType]gcpine.GCPineFunction{
 		gcpine.EventTypeFollowEvent:     function.FollowEvent,
 		gcpine.EventTypeUnfollowEvent:   function.UnfollowEvent,
 		gcpine.EventTypeTextMessage:     function.TextEvent,
