@@ -76,16 +76,12 @@ func main() {
 						return c.String(http.StatusBadRequest, "Bad Request - Invalid Task\n")
 					}
 
-					var (
-						taskName  = t[0]
-						queueName string
-					)
-					q, ok := c.Request().Header["X-Appengine-Queuename"]
-					if ok {
+					var queueName string
+					if q, ok := c.Request().Header["X-Appengine-Queuename"]; ok {
 						queueName = q[0]
 					}
 
-					fmt.Printf("Completed task: task queue(%s), task name(%s)\n", queueName, taskName)
+					fmt.Printf("Completed task: task queue(%s), task name(%s)\n", queueName, t[0])
 					return next(c)
 				}
 			})
