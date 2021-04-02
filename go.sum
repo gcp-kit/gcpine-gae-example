@@ -65,6 +65,8 @@ github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210330095516-f7803de48f7b h1:Z3eUI9v
 github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210330095516-f7803de48f7b/go.mod h1:oUhoxisGO7CJH4BZwTglbJly6q4BhM7K+wQ7HmC5moc=
 github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402182604-6bce5f3e000c h1:tggpH/81KMD3DkWBtwwGf/BFwlF6pfcnPruerN11E/A=
 github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402182604-6bce5f3e000c/go.mod h1:UqZ86wupeUp38aEbizZRtCXgIRQylIyuwmDZnG1ykaM=
+github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402183924-108df327fdbc h1:fTPk9MsXGScDHwp9EfqvN7sr4Ier8svP4xJxaZck2SE=
+github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402183924-108df327fdbc/go.mod h1:UqZ86wupeUp38aEbizZRtCXgIRQylIyuwmDZnG1ykaM=
 github.com/gcp-kit/stalog v0.0.0-20200710002441-a434c26e64d5 h1:UB0m0iFaL8J111C9C4/lKms6xhyw9h1l9zf3eS70FIU=
 github.com/gcp-kit/stalog v0.0.0-20200710002441-a434c26e64d5/go.mod h1:Jr5ViJKdK41O4WXFnkVnzG/7rorPzNmdb+G/B4+WMkg=
 github.com/go-chi/chi v4.0.3+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
