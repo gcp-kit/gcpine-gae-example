@@ -6,7 +6,7 @@ init:
 
 .PHONY: lint
 lint:
-	./bin/golangci-lint run --config ".github/.golangci.yml" --fast ./...
+	./bin/golangci-lint run --config=".github/.golangci.yml" --fast ./...
 
 .PHONY: bootstrap_golangci_lint
 bootstrap_golangci_lint:
