@@ -12,7 +12,7 @@ import (
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/gcp-kit/gcpen"
-	"github.com/gcp-kit/gcpine-gae-example/pkg/function"
+	"github.com/gcp-kit/gcpine-gae-example/pkg/function" // nolint: typecheck
 	"github.com/gcp-kit/line-bot-gcp-go/gcpine"
 	"github.com/gcp-kit/stalog"
 	"github.com/labstack/echo/v4"
