@@ -46,7 +46,7 @@ func main() {
 		log.Fatalf("failed to initialize linebot client: %+v", err)
 	}
 
-	queuePath := fmt.Sprintf("projects/%s/locations/%s/queues", gcpen.ProjectID, locationID)
+	queuePath := filepath.Join("projects", gcpen.ProjectID, "locations", locationID, "queues")
 
 	var (
 		parentQueue = fmt.Sprintf("%s-parent", gcpen.ProjectID)
