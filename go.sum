@@ -59,14 +59,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20201210154907-fd9021fe5dad/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/gcp-kit/gcpen v0.0.0-20210323175032-f6e32d38024c h1:xOrulUa6+rQpXgPqsQyr5o9ebC+7lCjuJMq9EMectx4=
 github.com/gcp-kit/gcpen v0.0.0-20210323175032-f6e32d38024c/go.mod h1:ZJqWKdv2tPpqBAtPZwC2gzFBtklzz8+tS33xVBx550g=
-github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210322091038-7bef6170f8e2 h1:p/uDx7TmNUmNeOoGFcCPITZ9KcAcZRt0szL7gln7ZZg=
-github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210322091038-7bef6170f8e2/go.mod h1:jno+ec72vHcK/HBnYCWpEN0D6vvR7gjZg28obRtKo18=
-github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210330095516-f7803de48f7b h1:Z3eUI9vidDVJ7oviE9lHyCbyP/YYZE6paKuzpSPKFO0=
-github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210330095516-f7803de48f7b/go.mod h1:oUhoxisGO7CJH4BZwTglbJly6q4BhM7K+wQ7HmC5moc=
-github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402182604-6bce5f3e000c h1:tggpH/81KMD3DkWBtwwGf/BFwlF6pfcnPruerN11E/A=
-github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402182604-6bce5f3e000c/go.mod h1:UqZ86wupeUp38aEbizZRtCXgIRQylIyuwmDZnG1ykaM=
-github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402183924-108df327fdbc h1:fTPk9MsXGScDHwp9EfqvN7sr4Ier8svP4xJxaZck2SE=
-github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402183924-108df327fdbc/go.mod h1:UqZ86wupeUp38aEbizZRtCXgIRQylIyuwmDZnG1ykaM=
+github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402192322-ab91ee59310a h1:keliBHMyhkAWi8FDsN5yCLLFONAt1bKFtArRBwse84Q=
+github.com/gcp-kit/line-bot-gcp-go v0.0.0-20210402192322-ab91ee59310a/go.mod h1:UqZ86wupeUp38aEbizZRtCXgIRQylIyuwmDZnG1ykaM=
 github.com/gcp-kit/stalog v0.0.0-20200710002441-a434c26e64d5 h1:UB0m0iFaL8J111C9C4/lKms6xhyw9h1l9zf3eS70FIU=
 github.com/gcp-kit/stalog v0.0.0-20200710002441-a434c26e64d5/go.mod h1:Jr5ViJKdK41O4WXFnkVnzG/7rorPzNmdb+G/B4+WMkg=
 github.com/go-chi/chi v4.0.3+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
