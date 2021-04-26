@@ -16,7 +16,7 @@ import (
 	"github.com/gcp-kit/line-bot-gcp-go/gcpine"
 	"github.com/gcp-kit/stalog"
 	"github.com/labstack/echo/v4"
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 const locationID = "asia-northeast1"
@@ -124,7 +124,7 @@ func main() {
 }
 
 func newPine(client *linebot.Client) *gcpine.GCPine {
-	functionMap := map[gcpine.EventType]gcpine.GCPineFunction{
+	functionMap := map[gcpine.EventType]gcpine.PineFunction{
 		gcpine.EventTypeFollowEvent:     function.FollowEvent,
 		gcpine.EventTypeUnfollowEvent:   function.UnfollowEvent,
 		gcpine.EventTypeTextMessage:     function.TextEvent,

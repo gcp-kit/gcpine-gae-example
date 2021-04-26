@@ -6,7 +6,7 @@ import (
 
 	"github.com/gcp-kit/line-bot-gcp-go/gcpine"
 	"github.com/go-utils/caller"
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"golang.org/x/xerrors"
 )
 
