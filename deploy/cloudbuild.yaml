@@ -1,4 +1,18 @@
 steps:
+  - name: 'gcr.io/cloud-builders/go'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        export GCP_PROJECT=$PROJECT_ID
+        export SHORT_SHA=$SHORT_SHA
+        export BRANCH_NAME=$BRANCH_NAME
+        export BUILD_ID=$BUILD_ID
+        echo "go run tools/set_env/main.go"
+        go run tools/set_env/main.go
+        cat backend/pkg/shared/env/env.json
+        echo "finish."
+
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'app'

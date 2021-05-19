@@ -11,8 +11,13 @@ import (
 	"runtime/debug"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"github.com/gcp-kit/gcpen"
-	"github.com/gcp-kit/gcpine-gae-example/pkg/function" // nolint: typecheck
+	"github.com/gcp-kit/gcpine-gae-example/backend/pkg/config"
+	"github.com/gcp-kit/gcpine-gae-example/backend/pkg/ctxkeys"
+	"github.com/gcp-kit/gcpine-gae-example/backend/pkg/environ"
+	"github.com/gcp-kit/gcpine-gae-example/backend/pkg/function" // nolint: typecheck
+	"github.com/gcp-kit/gcpine-gae-example/backend/pkg/secret"
 	"github.com/gcp-kit/line-bot-gcp-go/gcpine"
 	"github.com/gcp-kit/stalog"
 	"github.com/labstack/echo/v4"
@@ -22,6 +27,7 @@ import (
 const locationID = "asia-northeast1"
 
 func main() {
+	environ.IsTest = false
 	defer func() {
 		if rec := recover(); rec != nil {
 			debug.PrintStack()
@@ -33,34 +39,41 @@ func main() {
 
 	ctx := context.Background()
 
-	cloudtasksClient, err := cloudtasks.NewClient(ctx)
+	cloudTasksClient, err := cloudtasks.NewClient(ctx)
 	if err != nil {
 		log.Fatalf("failed to initialize cloudtasks client: %+v", err)
 	}
 
-	lineSecret := os.Getenv(gcpine.EnvKeyChannelSecret)
-	token := os.Getenv(gcpine.EnvKeyChannelAccessToken)
+	cfg := new(config.Config)
+	{
+		smClient, err := secretmanager.NewClient(ctx)
+		if err != nil {
+			log.Fatalf("failed to initialize secretmanager client: %+v", err)
+		}
+		smProvider := secret.NewProvider(smClient, gcpen.ProjectID)
+		cfg.ChannelSecret = smProvider.GetSecret(ctx, "CHANNEL_SECRET")
+		cfg.ChannelAccessToken = smProvider.GetSecret(ctx, "CHANNEL_ACCESS_TOKEN")
+		if cfg.ChannelSecret == "" || cfg.ChannelAccessToken == "" {
+			log.Fatalf("secret and token are required")
+		}
+		ctx = context.WithValue(ctx, ctxkeys.ConfigKey{}, cfg)
+	}
 
-	lineClient, err := linebot.New(lineSecret, token)
+	lineClient, err := linebot.New(cfg.ChannelSecret, cfg.ChannelAccessToken)
 	if err != nil {
 		log.Fatalf("failed to initialize linebot client: %+v", err)
 	}
 
 	queuePath := filepath.Join("projects", gcpen.ProjectID, "locations", locationID, "queues")
 
-	var (
-		parentQueue = fmt.Sprintf("%s-parent", gcpen.ProjectID)
-		childQueue  = fmt.Sprintf("%s-child", gcpen.ProjectID)
-	)
-
 	g := e.Group("/line/")
 	{
 		props := gcpine.NewAppEngineProps(
-			cloudtasksClient,
-			filepath.Join(queuePath, parentQueue),
+			cloudTasksClient,
+			filepath.Join(queuePath, "parent"),
 			"/line/tq/parent",
 		)
-		props.SetSecret(lineSecret)
+		props.SetSecret(cfg.ChannelSecret)
 
 		g.POST("webhook", func(c echo.Context) error {
 			return props.ReceiveWebHook(c.Request(), c.Response().Writer)
@@ -87,11 +100,18 @@ func main() {
 			})
 
 			props := gcpine.NewAppEngineProps(
-				cloudtasksClient,
-				filepath.Join(queuePath, childQueue),
+				cloudTasksClient,
+				filepath.Join(queuePath, "child"),
 				"/line/tq/child",
 			)
-			props.SetGCPine(newPine(lineClient))
+
+			pine := newPine(lineClient)
+			props.SetGCPine(pine)
+
+			config.BotInfo, err = pine.GetBotInfo().WithContext(ctx).Do()
+			if err != nil {
+				log.Fatalf("failed to get bot info: %+v", err)
+			}
 
 			tq.POST("parent", func(c echo.Context) error {
 				body, err := ioutil.ReadAll(c.Request().Body)
@@ -102,8 +122,10 @@ func main() {
 			})
 
 			tq.POST("child", func(c echo.Context) error {
+				logger := stalog.RequestContextLogger(c.Request())
 				body, err := ioutil.ReadAll(c.Request().Body)
 				if err != nil {
+					logger.Errorf("error: %+v", err)
 					return err
 				}
 				return props.ChildEvent(ctx, body)
@@ -125,12 +147,17 @@ func main() {
 
 func newPine(client *linebot.Client) *gcpine.GCPine {
 	functionMap := map[gcpine.EventType]gcpine.PineFunction{
-		gcpine.EventTypeFollowEvent:     function.FollowEvent,
-		gcpine.EventTypeUnfollowEvent:   function.UnfollowEvent,
-		gcpine.EventTypeTextMessage:     function.TextEvent,
-		gcpine.EventTypeLocationMessage: function.LocationEvent,
+		gcpine.EventTypeFollowEvent:       function.FollowEvent,
+		gcpine.EventTypeUnfollowEvent:     function.UnfollowEvent,
+		gcpine.EventTypeTextMessage:       function.TextEvent,
+		gcpine.EventTypeLocationMessage:   function.LocationEvent,
+		gcpine.EventTypePostBackEvent:     function.PostBackEvent,
+		gcpine.EventTypeJoinEvent:         function.JoinEvent,
+		gcpine.EventTypeMemberJoinedEvent: function.MemberJoinedEvent,
+		gcpine.EventTypeMemberLeftEvent:   function.MemberLeftEvent,
+		gcpine.EventTypeLeaveEvent:        function.LeaveEvent,
 	}
-	systemError := linebot.NewTextMessage("システムエラーです。")
+	systemError := linebot.NewTextMessage("System error.")
 
 	return &gcpine.GCPine{
 		ErrMessages: []linebot.SendingMessage{systemError},
@@ -145,14 +172,14 @@ func newStalogConfig(severities ...stalog.Severity) *stalog.Config {
 		severity = severities[0]
 	}
 
-	config := stalog.NewConfig(gcpen.ProjectID)
-	config.RequestLogOut = os.Stderr               // request log to stderr
-	config.ContextLogOut = os.Stdout               // context log to stdout
-	config.Severity = severity                     // only over variable `severity` logs are logged
-	config.AdditionalData = stalog.AdditionalData{ // set additional fields for all logs
+	cfg := stalog.NewConfig(gcpen.ProjectID)
+	cfg.RequestLogOut = os.Stderr               // request log to stderr
+	cfg.ContextLogOut = os.Stdout               // context log to stdout
+	cfg.Severity = severity                     // only over variable `severity` logs are logged
+	cfg.AdditionalData = stalog.AdditionalData{ // set additional fields for all logs
 		"service": gcpen.ServiceName,
 		"version": gcpen.ServiceVersion,
 	}
 
-	return config
+	return cfg
 }

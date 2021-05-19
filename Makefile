@@ -16,3 +16,19 @@ bootstrap_golangci_lint:
 	tar xzf golangci-lint.tar.gz && \
 	mv golangci-lint-$(GOLANGCI_LINT_VERSION)-$(shell uname -s)-amd64/golangci-lint golangci-lint && \
 	rm -rf golangci-lint-$(GOLANGCI_LINT_VERSION)-$(shell uname -s)-amd64 *.tar.gz
+
+.PHONY: bootstrap_ngrok
+bootstrap_ngrok:
+	mkdir -p bin
+	curl -L -o ./bin/ngrok-stable-darwin-amd64.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-darwin-amd64.zip
+	cd ./bin && \
+	unzip ngrok-stable-darwin-amd64.zip && \
+	rm -rf ngrok-stable-darwin-amd64.zip
+
+.PHONY: run_server
+run_server:
+	cd backend/cmd && go run .
+
+.PHONY: run_ngrok
+run_ngrok:
+	cd bin && ./ngrok http 8080 -region=ap
