@@ -2,4 +2,4 @@ runtime: go115
 
 service: bot
 
-main: appengine/bot
+main: backend/appengine/bot
